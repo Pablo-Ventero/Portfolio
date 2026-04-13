@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos los proyectos — Pablo Ventero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:     #0a0a0a;
+            --bg2:    #111;
+            --bg3:    #161616;
+            --accent: #4F8EF7;
+            --text:   #EFEFEF;
+            --dim:    #666;
+            --border: #1e1e1e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; }
+
+        /* ===== NAVBAR ===== */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            padding: 20px 40px;
+        }
+
+        .nav-pill {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(10,10,10,0.85);
+            border: 1px solid #2a2a2a;
+            border-radius: 100px;
+            padding: 6px;
+            backdrop-filter: blur(16px);
+        }
+
+        .nav-pill a {
+            display: block;
+            padding: 8px 20px;
+            border-radius: 100px;
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-pill a:hover { color: var(--text); }
+        .nav-pill a.back { background: var(--bg3); }
+        .nav-pill a.back:hover { color: var(--accent); }
+
+        /* ===== CABECERA ===== */
+        .page-header {
+            min-height: 38vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 120px 60px 60px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--dim);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        .page-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.78rem;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+
+        .page-title {
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        .page-title span { color: var(--accent); }
+
+        .page-sub {
+            font-size: 0.9rem;
+            color: var(--dim);
+            margin-top: 20px;
+            line-height: 1.7;
+            max-width: 480px;
+        }
+
+        /* ===== CONTENIDO ===== */
+        .content {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 80px 60px;
+        }
+
+        /* ===== CATEGORÍAS DESPLEGABLES ===== */
+        .category {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .category.open {
+            border-color: rgba(79,142,247,0.3);
+        }
+
+        /* Cabecera del desplegable */
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 28px;
+            cursor: pointer;
+            background: var(--bg2);
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .category-header:hover { background: var(--bg3); }
+
+        .category-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .category-icon { font-size: 1.4rem; }
+
+        .category-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .category-count {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            background: rgba(79,142,247,0.1);
+            border: 1px solid rgba(79,142,247,0.2);
+            border-radius: 100px;
+            padding: 2px 10px;
+            margin-left: 4px;
+        }
+
+        .category-arrow {
+            font-size: 1rem;
+            color: var(--dim);
+            transition: transform 0.3s ease;
+        }
+
+        .category.open .category-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Contenido desplegable */
+        .category-body {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--bg);
+        }
+
+        .category.open .category-body {
+            grid-template-rows: 1fr;
+        }
+
+        .category-body-inner {
+            overflow: hidden;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s, padding 0.38s ease;
+        }
+
+        .category.open .category-body-inner {
+            opacity: 1;
+            transform: translateY(0);
+            padding: 8px 16px 16px;
+        }
+
+        /* Tarjetas de proyecto dentro del desplegable */
+        .proj-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px 28px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+
+        .proj-card:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+            background: var(--bg3);
+        }
+
+        .proj-card:hover .proj-name { color: var(--accent); }
+        .proj-card:hover .proj-arrow { color: var(--accent); }
+
+        .proj-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            transition: color 0.2s;
+        }
+
+        .proj-desc {
+            font-size: 0.8rem;
+            color: var(--dim);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .proj-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .ptag {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--accent);
+            background: rgba(79,142,247,0.08);
+            border: 1px solid rgba(79,142,247,0.18);
+            border-radius: 4px;
+            padding: 3px 9px;
+        }
+
+        .proj-arrow {
+            font-size: 1.2rem;
+            color: var(--dim);
+            transition: color 0.2s;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 60px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        footer p { font-size: 0.78rem; color: #333; }
+        footer span { color: var(--accent); }
+
+        /* ===== ANIMACIONES ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .page-header { padding: 100px 24px 40px; }
+            .content { padding: 60px 24px; }
+            .proj-card { grid-template-columns: 1fr; }
+            .proj-arrow { display: none; }
+            footer { padding: 24px; flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="nav-pill">
+            <a href="index.html" class="back">← Volver</a>
+        </div>
+    </nav>
+
+    <!-- CABECERA -->
+    <div class="page-header">
+        <a href="portfolio_final.html#proyectos" class="back-link">← Proyectos destacados</a>
+        <div class="page-tag">// Archivo completo</div>
+        <h1 class="page-title">Todos los<br><span>proyectos</span></h1>
+        <p class="page-sub">Colección completa de proyectos y ejercicios organizados por categoría. Haz clic en cada categoría para ver los proyectos.</p>
+    </div>
+
+    <!-- CATEGORÍAS -->
+    <div class="content">
+
+        <!-- =============================================
+             ✏️ CÓMO AÑADIR PROYECTOS:
+             1. Abre la categoría correcta
+             2. Copia uno de los bloques .proj-card
+             3. Cambia el enlace, nombre, descripción y tags
+             4. Actualiza el número del .category-count
+        ============================================= -->
+
+        <!-- ===== CATEGORÍA: PROGRAMACIÓN ===== -->
+        <div class="category reveal" id="cat-programacion">
+            <div class="category-header" onclick="toggle('cat-programacion')">
+                <div class="category-header-left">
+                    <span class="category-icon">💻</span>
+                    <span class="category-title">Programación</span>
+                    <!-- ✏️ Cambia el número cuando añadas proyectos -->
+                    <span class="category-count">5 proyectos</span>
+                </div>
+                <span class="category-arrow">▼</span>
+            </div>
+            <div class="category-body">
+                <div class="category-body-inner">
+
+                    <a href="https://github.com/Pablo-Ventero/ejercicios-java-estructuras-control" target="_blank" class="proj-card">
+                        <div>
+                            <div class="proj-name">Proyectos Java — Estructuras de control</div>
+                            <div class="proj-desc">Ejercicios en Java centrados en estructuras de control: bucles for y while, condicionales if/else, operador módulo, acumuladores y entrada de datos con Scanner.</div>
+                            <div class="proj-tags"><span class="ptag">Java</span><span class="ptag">Bucles</span><span class="ptag">Condicionales</span></div>
+                        </div>
+                        <span class="proj-arrow">↗</span>
+                    </a>
+
+                    <a href="https://github.com/Pablo-Ventero/ejercicios-java-arrays" target="_blank" class="proj-card">
+                        <div>
+                            <div class="proj-name">Proyectos Java — Arrays y ArrayLists</div>
+                            <div class="proj-desc">Ejercicios en Java centrados en arrays y ArrayLists: recorrido inverso, búsqueda de máximo y mínimo, conversión de bases numéricas y búsqueda y reemplazo de elementos con add(), get(), set() y size().</div>
+                            <div class="proj-tags"><span class="ptag">Java</span><span class="ptag">Arrays</span><span class="ptag">ArrayList</span></div>
+                        </div>
+                        <span class="proj-arrow">↗</span>
+                    </a>
+
+                    <a href="https://github.com/Pablo-Ventero/ejercicios-java-poo" target="_blank" class="proj-card">
+                        <div>
+                            <div class="proj-name">Proyectos Java — POO</div>
+                            <div class="proj-desc">Ejercicios en Java centrados en Programación Orientada a Objetos: herencia, encapsulación, constructores, getters y setters, sobreescritura de toString() y uso de ArrayList para gestionar colecciones de objetos.</div>
+                            <div class="proj-tags"><span class="ptag">Java</span><span class="ptag">POO</span><span class="ptag">Herencia</span><span class="ptag">Encapsulación</span></div>
+                        </div>
+                        <span class="proj-arrow">↗</span>
+                    </a>
+
+                    <a href="https://github.com/Pablo-Ventero/ejercicios-java-excepciones" target="_blank" class="proj-card">
+                        <div>
+                            <div class="proj-name">Proyectos Java — Excepciones</div>
+                            <div class="proj-desc">Ejercicios en Java centrados en el manejo de excepciones: creación de excepciones personalizadas, excepciones encadenadas, bloques try-catch-finally y validación de datos lanzando errores controlados.</div>
+                            <div class="proj-tags"><span class="ptag">Java</span><span class="ptag">Excepciones</span><span class="ptag">Try-catch</span></div>
+                        </div>
+                        <span class="proj-arrow">↗</span>
+                    </a>
+                    <a href="https://github.com/Pablo-Ventero/ejercicios-java-ficheros" target="_blank" class="proj-card">
+                        <div>
+                            <div class="proj-name">Proyectos Java — Ficheros de texto</div>
+                            <div class="proj-desc">Ejercicios en Java centrados en el manejo de ficheros de texto: lectura y escritura con FileReader, FileWriter, BufferedReader y BufferedWriter, recorrido de contenido línea a línea y generación de nuevos ficheros a partir de los datos leídos.</div>
+                            <div class="proj-tags"><span class="ptag">Java</span><span class="ptag">FileReader</span><span class="ptag">FileWriter</span><span class="ptag">BufferedReader</span><span class="ptag">BufferedWriter</span></div>
+                        </div>
+                        <span class="proj-arrow">↗</span>
+                    </a>
+
+                    <!-- ✏️ Añade más proyectos de programación aquí -->
+
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- ===== CATEGORÍA: WEB ===== -->
+        <div class="category reveal" id="cat-web">
+            <div class="category-header" onclick="toggle('cat-web')">
+                <div class="category-header-left">
+                    <span class="category-icon">🌐</span>
+                    <span class="category-title">Desarrollo Web</span>
+                    <span class="category-count">2 proyectos</span>
+                </div>
+                <span class="category-arrow">▼</span>
+            </div>
+            <div class="category-body">
+                <div class="category-body-inner">
+
+                    <a href="https://github.com/Pablo-Ventero/web-concesionario" target="_blank" class="proj-card">
+                        <div>
+                            <div class="proj-name">NextRide</div>
+                            <div class="proj-desc">Web completa de un concesionario ficticio con múltiples páginas HTML, CSS propio por sección y navegación funcional.</div>
+                            <div class="proj-tags"><span class="ptag">HTML5</span><span class="ptag">CSS3</span><span class="ptag">Web</span></div>
+                        </div>
+                        <span class="proj-arrow">↗</span>
+                    </a>
+
+                    <a href="https://github.com/Pablo-Ventero/ejercicios-html-css" target="_blank" class="proj-card">
+                        <div>
+                            <div class="proj-name">Ejercicios HTML y CSS</div>
+                            <div class="proj-desc">Ciudad construida con puro CSS, animaciones con keyframes, corazón animado, mono escalador y efectos visuales.</div>
+                            <div class="proj-tags"><span class="ptag">HTML5</span><span class="ptag">CSS3</span><span class="ptag">Animaciones</span></div>
+                        </div>
+                        <span class="proj-arrow">↗</span>
+                    </a>
+
+                    <!-- ✏️ Añade más proyectos web aquí -->
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CATEGORÍA: BASES DE DATOS ===== -->
+        <div class="category reveal" id="cat-bbdd">
+            <div class="category-header" onclick="toggle('cat-bbdd')">
+                <div class="category-header-left">
+                    <span class="category-icon">🗄️</span>
+                    <span class="category-title">Bases de datos</span>
+                    <span class="category-count">Próximamente</span>
+                </div>
+                <span class="category-arrow">▼</span>
+            </div>
+            <div class="category-body">
+                <div class="category-body-inner">
+                    <div style="padding: 24px; text-align: center; color: var(--dim); font-size: 0.85rem; font-family: 'Fira Code', monospace;">
+                        // Proyectos de SQL en desarrollo...
+                    </div>
+                    <!-- ✏️ Cuando tengas proyectos de SQL añádelos aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================
+             ✏️ PARA AÑADIR UNA CATEGORÍA NUEVA:
+             Copia este bloque y cambia:
+             - El id (cat-NOMBRE)
+             - El icono, título y contador
+             - El onclick con el mismo id
+             - Los proyectos dentro
+        ==============================================
+        <div class="category reveal" id="cat-nueva">
+            <div class="category-header" onclick="toggle('cat-nueva')">
+                <div class="category-header-left">
+                    <span class="category-icon">📦</span>
+                    <span class="category-title">Nueva categoría</span>
+                    <span class="category-count">X proyectos</span>
+                </div>
+                <span class="category-arrow">▼</span>
+            </div>
+            <div class="category-body">
+                <div class="category-body-inner">
+                    ... proyectos ...
+                </div>
+            </div>
+        </div>
+        -->
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2025 <span>Pablo Ventero</span></p>
+        <p><a href="index.html" style="color:#333; text-decoration:none;">← Volver al portfolio</a></p>
+    </footer>
+
+    <script>
+        // Abrir/cerrar categoría
+        function toggle(id) {
+            const cat = document.getElementById(id);
+            cat.classList.toggle('open');
+        }
+
+        // Reveal al hacer scroll
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 80);
+            });
+        }, { threshold: 0.05 });
+        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    </script>
+
+</body>
+</html>
