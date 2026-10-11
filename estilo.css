@@ -1,0 +1,153 @@
+:root {
+    --bg-color: #f2f2f7;
+    --bento-bg: #ffffff;
+    --bento-hover: #f9f9fb;
+    --text-main: #1c1c1e;
+    --text-sec: #8e8e93;
+    --accent: #0071e3;
+    --dark-bg: #1c1c1e;
+    --dark-hover: #2c2c2e;
+    --dark-text: #ffffff;
+    --radius: 28px;
+    --gap: 20px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.bento-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* Reducimos la altura base de cada fila (antes era 250px) */
+    grid-auto-rows: 220px; 
+    gap: var(--gap);
+    max-width: 1200px;
+    width: 100%;
+}
+
+/* Estilos base de las cajas */
+.bento-item {
+    background-color: var(--bento-bg);
+    border-radius: var(--radius);
+    /* Reducimos ligeramente el padding para que el contenido respire al tener menos altura */
+    padding: 1.8rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+    color: var(--text-main);
+}
+
+/* --- ANIMACIONES PARA LOS ENLACES --- */
+.project-link {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.3s ease, 
+                background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.project-link:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    background-color: var(--bento-hover);
+}
+
+.project-link h3 { transition: transform 0.3s ease; }
+.project-link:hover h3 { transform: translateX(5px); }
+
+.dark-bg.project-link:hover { background-color: var(--dark-hover); }
+
+/* --- SPANS DE LA CUADRÍCULA PARA 5 ELEMENTOS --- */
+.span-2x2 { grid-column: span 2; grid-row: span 2; }
+.span-2x1 { grid-column: span 2; grid-row: span 1; }
+.span-1x1 { grid-column: span 1; grid-row: span 1; }
+.span-1x2 { grid-column: span 1; grid-row: span 2; }
+
+/* Tipografías */
+h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.05em; }
+h2 { font-size: 1.4rem; font-weight: 500; color: var(--text-sec); margin-bottom: 1.5rem; }
+h3 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;}
+p { color: var(--text-sec); font-size: 1rem; line-height: 1.5; }
+
+/* Elementos de UI */
+.badge {
+    align-self: flex-start;
+    background: #e5e5ea;
+    color: var(--text-main);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.badge.highlight { background: var(--accent); color: white; }
+
+.btn {
+    align-self: flex-start;
+    background: var(--text-main);
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: auto;
+}
+
+.dark-bg { background-color: var(--dark-bg); color: var(--dark-text); }
+.dark-bg p, .dark-bg h2 { color: #aeaeb2; }
+.dark-bg .badge { background: #3a3a3c; color: white; }
+
+.location { font-weight: 600; margin-bottom: 1rem; color: var(--text-main); }
+.social-links { display: flex; flex-direction: column; gap: 0.8rem; }
+.social-links a { color: var(--accent); text-decoration: none; font-weight: 600; transition: opacity 0.2s; }
+.social-links a:hover { opacity: 0.7; }
+
+/* Caja de Perfil (Sobre Mí) con Foto */
+.profile-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2rem;
+}
+.profile-content { flex: 1; }
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #d1d1d6; /* Reemplaza esto con background-image: url('tu-foto.jpg'); */
+    flex-shrink: 0;
+}
+
+/* Diseño Responsivo */
+@media (max-width: 950px) {
+    .bento-container {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: auto;
+    }
+    .span-2x2, .span-2x1 { grid-column: span 2; }
+    .span-1x1 { grid-column: span 1; min-height: 250px; }
+    .profile-box { flex-direction: column; text-align: center; }
+}
+
+@media (max-width: 600px) {
+    .bento-container { grid-template-columns: 1fr; }
+    .span-2x2, .span-2x1, .span-1x1 { grid-column: span 1; grid-row: auto; min-height: 250px; }
+}
